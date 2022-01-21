@@ -1,58 +1,78 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div v-if="isLoading" class="loading_container">
+    <div class="bg_loading">
+      <img :src="getImage" alt="loadingImg" class="loading_img">
+    </div>
   </div>
 </template>
 
 <script>
+import bus from '../utils/bus';
+
 export default {
-  name: 'HelloWorld',
   props: {
-    msg: String
-  }
+    isLoading: {
+      type: Boolean,
+      default: false
+    },
+  },
+  data() {
+    return {
+      iconIdx: 1,
+      min: 1,
+      max: 4,
+      loadingInterval: null,
+    }
+  },
+  computed: {
+    getImage() {
+      // return require(`@/assets/img/imgloading0${ this.iconIdx }.png`)
+      return require('@/assets/img/img_loading0'+ this.iconIdx +'.png')
+    }
+  },
+  created() {
+    bus.$emit('start:loading');
+    this.loadingInterval = setInterval( () => {
+      this.iconIdx = this.getRandomNo();
+    }, 100);
+  },
+  methods: {
+    getRandomNo() {
+      return Math.floor(Math.random() * (this.max - this.min + 1)) + this.min;
+    }
+  },
+  mounted() {
+    setTimeout( () => {
+      bus.$emit('end:loading');
+    }, 5000)
+  },
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+.loading_container{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background-color: rgba(0,0,0,0);
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+.bg_loading{
+  position: fixed;
+  top:50%;
+  left:50%;
+  width: 100px;
+  height: 100px;
+  border-radius: 70px;
+  background-color: #eeeeee;
+  margin-top:-50px;
+  margin-left:-50px;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
+.loading_img{
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  object-fit: none;
 }
 </style>
